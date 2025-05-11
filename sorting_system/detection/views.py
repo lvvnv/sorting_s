@@ -1,6 +1,6 @@
 import requests
 from django.shortcuts import render
-from .forms import ImageUploadForm
+from classification.forms import ImageUploadForm
 
 def detect_objects(request):
     if request.method == 'POST':

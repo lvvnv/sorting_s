@@ -16,12 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from . import views
+from core.views import home, about
+from classification.views import classify_image
+from detection.views import detect_objects
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('about/', views.about, name='about'),
+    path('', home, name='home'),
+    path('about/', about, name='about'),
     path('admin/', admin.site.urls),
-    path('classify/', views.classify_image, name='classify'),
-    path('detect/', views.detect_objects, name='detect'),
+    path('classify/', classify_image, name='classify'),
+    path('detect/', detect_objects, name='detect'),
 ]
