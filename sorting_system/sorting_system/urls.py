@@ -23,4 +23,5 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('admin/', admin.site.urls),
     path('classify/', views.classify_image, name='classify'),
+    path('detect/', views.detect_objects, name='detect'),
 ]
