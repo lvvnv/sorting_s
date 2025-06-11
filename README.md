@@ -1,11 +1,12 @@
 # sorting_s
-sorting_s/sorting_system/
-├── api
-├── classification
-├── core
-├── detection
-├── monitoring
-├── sorting_system
-├── users
-├── manage.py
+
+sorting_s/sorting_system/<br>
+├── api<br>
+├── classification<br>
+├── core<br>
+├── detection<br>
+├── monitoring<br>
+├── sorting_system<br>
+├── users<br>
+├── manage.py<br>
 └── requirements.txt
