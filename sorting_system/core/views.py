@@ -4,7 +4,7 @@ import logging
 from django.shortcuts import render
 from .forms import ImageUploadForm
 from .models import UploadedImage
-from detection.detector import detect_waste  # Используем реальный детектор
+from detection.detector import detect_waste
 
 logger = logging.getLogger(__name__)
 
