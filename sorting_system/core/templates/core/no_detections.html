@@ -1,0 +1,14 @@
+<!-- core/templates/core/no_detections.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Объекты не обнаружены</title>
+</head>
+<body>
+    <h1>На изображении не обнаружено объектов</h1>
+    <img src="{{ original_image.image.url }}" alt="Uploaded Image" style="max-width: 500px;">
+    <p>Имя файла: {{ original_image.image.name }}</p>
+    <p>Путь: {{ original_image.image.path }}</p>
+    <p><a href="/">Попробовать другое изображение</a></p>
+</body>
+</html>

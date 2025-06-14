@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Результаты обработки</title>
+    <style>
+        .container { display: flex; flex-wrap: wrap; }
+        .image-section { flex: 1; min-width: 300px; padding: 10px; }
+        .info-section { flex: 1; min-width: 300px; padding: 10px; }
+        img { max-width: 100%; border: 1px solid #ddd; }
+        .detection-box { 
+            position: absolute; 
+            border: 2px solid red;
+            background-color: rgba(255, 0, 0, 0.1);
+        }
+        .detection-label {
+            background: white;
+            padding: 2px 5px;
+            font-size: 12px;
+            color: red;
+        }
+        .object-info { margin-bottom: 15px; padding: 10px; border: 1px solid #eee; }
+        .object-image { max-width: 100px; max-height: 100px; margin-right: 10px; }
+        .debug-section { margin-top: 20px; padding: 15px; background: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <h1>Результаты анализа мусора</h1>
+    
+    <div class="container">
+        <div class="image-section">
+            <h2>Исходное изображение</h2>
+            <div style="position: relative;">
+                <img src="{{ original_image.image.url }}" alt="Uploaded Image">
+                {% for det in detections %}
+                <div class="detection-box" 
+                    style="left: {{ det.x_min }}px; top: {{ det.y_min }}px;width: {{ det.x_max|add:det.x_min }}px;height: {{ det.y_max|add:det.y_min }}px;">
+                    <span class="detection-label">
+                        {{ det.class_name }} | {{ det.material }} ({{ det.material_confidence|floatformat:2 }})
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h2>Обнаруженные объекты</h2>
+            {% for det in detections %}
+            <div class="object-info">
+                <div>
+                    <strong>Объект:</strong> {{ det.class_name }}<br>
+                    <strong>Материал:</strong> {{ det.material }}<br>
+                    <strong>Уверенность (материал):</strong> {{ det.material_confidence|floatformat:2 }}<br>
+                    <strong>Уверенность (объект):</strong> {{ det.confidence|floatformat:2 }}<br>
+                    <strong>Координаты:</strong> 
+                    ({{ det.x_min }}, {{ det.y_min }}) - ({{ det.x_max }}, {{ det.y_max }})
+                </div>
+                <div style="margin-top: 10px;">
+                    <strong>Фрагмент:</strong><br>
+                    <img class="object-image" 
+                         src="data:image/jpeg;base64,{{ det.roi_base64 }}" 
+                         alt="Object ROI">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Отладочная информация</h3>
+        <p><strong>Путь к изображению:</strong> {{ original_image.image.path }}</p>
+        <p><strong>Отладочное изображение:</strong> 
+            <a href="{{ detections.0.debug_url }}" target="_blank">Просмотр</a>
+        </p>
+    </div>
+</body>
+</html>
