@@ -1,29 +1,29 @@
 # sorting_s
 ```
 sorting_system/
-├── api/
+├── api/ - REST API для энсемблирования моделей
 │   ├── __init__.py
 │   ├── views.py
 │   ├── serializers.py
 │   └── urls.py
-├── classification/
+├── classification/ - приложение для классификации
 │   ├── __init__.py
 │   ├── apps.py
 │   ├── models.py         
 │   ├── views.py
 │   ├── urls.py           
 │   └── classifier.py     
-├── core/
+├── core/ - общая логика
 │   ├── __init__.py
 │   ├── models.py
 │   └── views.py
-├── detection/
+├── detection/ - приложение для детекции
 │   ├── __init__.py
 │   ├── apps.py
 │   ├── models.py         
 │   ├── urls.py           
 │   └── detector.py       
-├── monitoring/
+├── monitoring/ - инструменты мониторинга
 │   ├── __init__.py
 │   ├── metrics.py
 │   └── middleware.py
