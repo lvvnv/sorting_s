@@ -16,7 +16,7 @@ def load_model():
     global model
     if model is None:
         try:
-            model_path = 'detection/weights/best_1.pt'
+            model_path = 'detection/weights/best_2.pt'
             if not os.path.exists(model_path):
                 logger.info("Downloading YOLOv8 model...")
                 import gdown
