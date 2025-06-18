@@ -1,6 +1,6 @@
-# core/forms.py
+# sorting_system/core/forms.py
 from django import forms
-from core.models import UploadedImage
+from .models import UploadedImage
 
 class ImageUploadForm(forms.ModelForm):
     class Meta:

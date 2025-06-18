@@ -1,73 +1,82 @@
+import os
+import torch
+import torch.nn as nn
+from torchvision import transforms
+from PIL import Image
 import numpy as np
-import cv2
-import logging
-import tensorflow as tf
-from tensorflow.keras.applications import EfficientNetB0
-from tensorflow.keras.applications.efficientnet import preprocess_input
-from tensorflow.keras.layers import GlobalAveragePooling2D, Dense
-from tensorflow.keras.models import Model
+from django.conf import settings
+import timm
 
-logger = logging.getLogger(__name__)
-
-# Загрузка модели при старте приложения
-model = None
-class_names = ['plastic', 'glass', 'paper', 'metal']  # Пример классов
-
-def load_classifier_model():
-    global model
-    if model is None:
+class Classifier:
+    def __init__(self):
+        self.initialized = False
         try:
-            # Создаем модель EfficientNetB0 с кастомной головой
-            base_model = EfficientNetB0(
-                weights='imagenet', 
-                include_top=False, 
-                input_shape=(224, 224, 3))
+            # Путь к модели
+            model_path = os.path.join(
+                settings.BASE_DIR, 
+                'classification', 
+                'weights', 
+                'best_fine_tuned_weights.pth'
+            )
             
-            # Добавляем кастомные слои
-            x = base_model.output
-            x = GlobalAveragePooling2D()(x)
-            predictions = Dense(len(class_names), activation='softmax')(x)
+            # Проверка существования файла
+            if not os.path.exists(model_path):
+                raise FileNotFoundError(f"Model file not found: {model_path}")
             
-            # Собираем модель
-            model = Model(inputs=base_model.input, outputs=predictions)
+            # Создание модели
+            self.model = timm.create_model("convnextv2_base", pretrained=False, num_classes=6)
             
-            # Замораживаем базовые слои
-            for layer in base_model.layers:
-                layer.trainable = False
-                
-            logger.info("Модель EfficientNetB0 успешно создана")
+            # Загрузка весов
+            state_dict = torch.load(model_path, map_location=torch.device('cpu'))
+            self.model.load_state_dict(state_dict)
+            
+            # Переводим модель в режим оценки
+            self.model.eval()
+            
+            # Классы
+            self.classes = ['cardboard', 'glass', 'metal', 'paper', 'plastic', 'trash']
+            
+            # Трансформации
+            self.transform = transforms.Compose([
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ])
+            
+            print("Модель классификации успешно загружена!")
+            self.initialized = True
         except Exception as e:
-            logger.error(f"Ошибка создания модели: {str(e)}")
-            raise
-    return model
+            print(f"Ошибка загрузки модели классификации: {e}")
+            self.initialized = False
 
-def preprocess_image(image):
-    try:
-        # Конвертируем в RGB (OpenCV использует BGR по умолчанию)
-        if len(image.shape) == 2:  # Если изображение в градациях серого
-            image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-        else:
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    def preprocess_image(self, image):
+        # Конвертируем numpy array в PIL Image
+        if isinstance(image, np.ndarray):
+            image = Image.fromarray(image)
         
-        # Изменение размера и предобработка
-        image = cv2.resize(image, (224, 224))
-        image = preprocess_input(image)
-        return np.expand_dims(image, axis=0)
-    except Exception as e:
-        logger.error(f"Ошибка предобработки изображения: {str(e)}")
-        raise
+        # Применяем трансформации
+        return self.transform(image).unsqueeze(0)  # Добавляем batch dimension
 
-def classify_waste(image):
-    try:
-        classifier = load_classifier_model()
-        processed = preprocess_image(image)
-        
-        # Для демонстрации - случайный результат
-        # В реальном приложении нужно использовать обученную модель
-        class_idx = np.random.randint(0, len(class_names))
-        confidence = np.random.uniform(0.7, 0.95)
-        
-        return class_names[class_idx], float(confidence)
-    except Exception as e:
-        logger.error(f"Ошибка классификации: {str(e)}")
-        return "unknown", 0.0
+    def predict(self, image):
+        if not self.initialized:
+            print("Классификатор не инициализирован!")
+            return "model_error", 0.0
+            
+        try:
+            # Препроцессинг
+            input_tensor = self.preprocess_image(image)
+            
+            # Предсказание
+            with torch.no_grad():
+                output = self.model(input_tensor)
+                probabilities = torch.nn.functional.softmax(output[0], dim=0)
+            
+            # Получаем лучший класс и уверенность
+            confidence, class_idx = torch.max(probabilities, dim=0)
+            class_name = self.classes[class_idx.item()]
+            print(f"Результат классификации: {class_name} ({confidence.item():.2f})")
+            return class_name, confidence.item()
+        except Exception as e:
+            print(f"Ошибка классификации: {e}")
+            return "error", 0.0

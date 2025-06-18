@@ -1,143 +1,110 @@
-{% load custom_filters %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Результаты обработки</title>
-    <style>
-        .container { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 20px;
-        }
-        .image-section { 
-            flex: 1; 
-            min-width: 300px; 
-            max-width: 600px;
-            padding: 10px; 
-        }
-        .info-section { 
-            flex: 1; 
-            min-width: 300px; 
-            padding: 10px; 
-        }
-        .image-container {
-            position: relative;
-            display: inline-block;
-        }
-        .original-image {
-            max-width: 100%;
-            border: 1px solid #ddd;
-            display: block;
-        }
-        .detection-box { 
-            position: absolute; 
-            border: 2px solid red;
-            background-color: rgba(255, 0, 0, 0.1);
-            box-sizing: border-box;
-        }
-        .detection-label {
-            position: absolute;
-            top: -25px;
-            left: 0;
-            background: white;
-            padding: 2px 5px;
-            font-size: 12px;
-            color: red;
-            white-space: nowrap;
-        }
-        .object-info { 
-            margin-bottom: 15px; 
-            padding: 10px; 
-            border: 1px solid #eee; 
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        .object-image { 
-            max-width: 100px; 
-            max-height: 100px; 
-            margin-top: 5px;
-            border: 1px solid #ddd;
-        }
-        .debug-section { 
-            margin-top: 20px; 
-            padding: 15px; 
-            background: #f5f5f5; 
-            border-radius: 5px;
-        }
-        .object-details {
-            margin: 5px 0;
-        }
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-<body>
-    <h1>Результаты анализа мусора</h1>
-    
-    <div class="container">
-        <div class="image-section">
-            <h2>Исходное изображение</h2>
-            <div class="image-container">
-                <img src="{{ original_image.image.url }}" alt="Uploaded Image" class="original-image">
-                {% for det in detections %}
-<div class="detection-box"
-     style="left: {{ det.x_min|floatformat:2|div:original_image.image.width|mul:100 }}%;
-            top: {{ det.y_min|floatformat:2|div:original_image.image.height|mul:100 }}%;
-            width: {{ det.x_max|minus:det.x_min|floatformat:2|div:original_image.image.width|mul:100 }}%;
-            height: {{ det.y_max|minus:det.y_min|floatformat:2|div:original_image.image.height|mul:100 }}%;">
-        {{ det.class_name }} | {{ det.material }} ({{ det.material_confidence|floatformat:2 }})
-    </span>
-</div>
-{% endfor %}
+{% extends "core/base.html" %}
 
+{% block main_content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Результаты анализа</h2>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <h4>Оригинальное изображение</h4>
+            <img src="{{ uploaded_image.image.url }}" class="img-fluid rounded shadow" alt="Uploaded Image">
+        </div>
+        <div class="col-md-6 mb-3">
+            <h4>Обработанное изображение</h4>
+            <img src="{{ processed_image_url }}" class="img-fluid rounded shadow" alt="Processed Image">
+        </div>
+    </div>
+
+    <div class="d-md-none mt-3">
+    <h4>Обнаруженные объекты</h4>
+    {% for detection in detections %}
+    <div class="card mb-2">
+        <div class="card-body">
+            <h5 class="card-title"></h5>
+            <div class="row">
+                <div class="col-6">
+                    <strong>Детекция:</strong>{{ detection.class }}<br>
+                    <strong>Уверенность:</strong>
+                    <span class="badge 
+                        {% if detection.confidence > 0.7 %}bg-success
+                        {% elif detection.confidence > 0.4 %}bg-warning
+                        {% else %}bg-danger{% endif %}">
+                        {{ detection.confidence|floatformat:2 }}
+                    </span>
+                </div>
+                <div class="col-6">
+                    <strong>Классификация:</strong>
+                    {{ detection.classification_class }}<br>
+                    <strong>Уверенность:</strong>
+                    <span class="badge 
+                        {% if detection.classification_confidence > 0.7 %}bg-success
+                        {% elif detection.classification_confidence > 0.4 %}bg-warning
+                        {% else %}bg-danger{% endif %}">
+                        {{ detection.classification_confidence|floatformat:2 }}
+                    </span>
+                </div>
+            </div>
+            <div class="mt-2">
+                <strong>Координаты:</strong><br>
+                ({{ detection.box.0 }}, {{ detection.box.1 }})<br>
+                ({{ detection.box.2 }}, {{ detection.box.3 }})
             </div>
         </div>
-        
-        <div class="info-section">
-            <h2>Обнаруженные объекты</h2>
-            {% for det in detections %}
-            <div class="object-info">
-                <div class="object-details">
-                    <strong>Объект:</strong> {{ det.class_name }}
-                </div>
-                <div class="object-details">
-                    <strong>Материал:</strong> {{ det.material }}
-                </div>
-                <div class="object-details">
-                    <strong>Уверенность (материал):</strong> {{ det.material_confidence|floatformat:2 }}
-                </div>
-                <div class="object-details">
-                    <strong>Уверенность (объект):</strong> {{ det.confidence|floatformat:2 }}
-                </div>
-                <div class="object-details">
-                    <strong>Координаты:</strong> 
-                    ({{ det.x_min }}, {{ det.y_min }}) - ({{ det.x_max }}, {{ det.y_max }})
-                </div>
-                <div class="object-details">
-                    <strong>Размер:</strong> 
-                    {{ det.x_max|minus:det.x_min }}x{{ det.y_max|minus:det.y_min }} пикселей
-                </div>
-                <div>
-                    <strong>Фрагмент:</strong><br>
-                    <img class="object-image" 
-                         src="data:image/jpeg;base64,{{ det.roi_base64 }}" 
-                         alt="Object ROI">
-                </div>
-            </div>
-            {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+    
+    <div class="d-none d-md-block mt-4">
+        <h4>Обнаруженные объекты</h4>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Класс (Детекция)</th>
+                        <th>Уверенность</th>
+                        <th>Класс (Классификация)</th>
+                        <th>Уверенность</th>
+                        <th>Координаты</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detection in detections %}
+                    <tr>
+                        <td>{{ detection.class }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if detection.confidence > 0.7 %}bg-success
+                                {% elif detection.confidence > 0.4 %}bg-warning
+                                {% else %}bg-danger{% endif %}">
+                                {{ detection.confidence|floatformat:2 }}
+                            </span>
+                        </td>
+                        <td>{{ detection.classification_class }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if detection.classification_confidence > 0.7 %}bg-success
+                                {% elif detection.classification_confidence > 0.4 %}bg-warning
+                                {% else %}bg-danger{% endif %}">
+                                {{ detection.classification_confidence|floatformat:2 }}
+                            </span>
+                        </td>
+                        <td>
+                            <small>
+                                ({{ detection.box.0 }}, {{ detection.box.1 }})<br>
+                                ({{ detection.box.2 }}, {{ detection.box.3 }})
+                            </small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
     
-    <div class="debug-section">
-        <h3>Отладочная информация</h3>
-        <p><strong>Путь к изображению:</strong> {{ original_image.image.path }}</p>
-        <p><strong>Отладочное изображение:</strong> 
-            <a href="{{ detections.0.debug_url }}" target="_blank">Просмотр</a>
-        </p>
+    <div class="mt-4 text-center">
+        <a href="{% url 'ensemble' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-arrow-repeat"></i> Загрузить новое изображение
+        </a>
     </div>
-    <p><a href="/">Попробовать другое изображение</a></p>
-</body>
-</html>
+</div>
+{% endblock %}

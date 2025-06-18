@@ -1,8 +1,7 @@
+# sorting_system/core/urls.py
 from django.urls import path
-from . import views
-
-app_name = 'core'
+from .views import ensemble_view
 
 urlpatterns = [
-    path('', views.upload_image, name='upload_image'),
+    path('', ensemble_view, name='ensemble'),
 ]
