@@ -1,0 +1,59 @@
+// frontend/src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import ClassificationUploadPage from './pages/ClassificationUploadPage';
+import ClassificationResultPage from './pages/ClassificationResultPage';
+import ErrorPage from './pages/ErrorPage';
+import NoDetectionsPage from './pages/NoDetectionsPage';
+import UploadPage from './pages/UploadPage';
+import ResultsPage from './pages/ResultsPage';
+
+// const App = () => {
+//   return (
+//     <Router>
+//       <Routes>
+//         <Route path="/" element={<Layout />}>
+//           <Route index element={<HomePage />} />
+//           <Route path="about" element={<AboutPage />} />
+//           <Route path="classify" element={<ClassificationUploadPage />} />
+//           <Route path="classify/result" element={<ClassificationResultPage />} />
+//           <Route path="error" element={<ErrorPage />} />
+//           <Route path="no-detections" element={<NoDetectionsPage />} />
+//         </Route>
+//       </Routes>
+//     </Router>
+//   );
+// };
+
+// export default App;
+
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "about", element: <AboutPage /> },
+      { path: "classify", element: <ClassificationUploadPage /> },
+      { path: "classify/result", element: <ClassificationResultPage /> },
+      { path: "error", element: <ErrorPage /> },
+      { path: "no-detections", element: <NoDetectionsPage /> }
+    ]
+  }
+], {
+  future: {
+    v7_relativeSplatPath: true,
+    v7_startTransition: true
+  }
+});
+
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;

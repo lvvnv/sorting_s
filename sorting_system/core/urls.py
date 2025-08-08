@@ -1,7 +1,6 @@
-# sorting_system/core/urls.py
 from django.urls import path
-from .views import ensemble_view
+from .views import EnsembleAPIView
 
 urlpatterns = [
-    path('', ensemble_view, name='ensemble'),
+    path('api/ensemble/', EnsembleAPIView.as_view(), name='ensemble'),
 ]

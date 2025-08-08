@@ -23,6 +23,12 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', include('core.urls')),
     path('admin/', admin.site.urls),
-    path('classify/', include('classification.urls')),
-    path('detect/', include('detection.urls')),
+    path('api/', include('api.urls')),
+    path('api/', include('core.urls')),
+    path('api/classification/', include('classification.urls')),
+    path('api/detection/', include('detection.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Для разработки - раздача медиафайлов
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
