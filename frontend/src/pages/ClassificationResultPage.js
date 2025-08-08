@@ -26,8 +26,8 @@ const ClassificationResultPage = () => {
     <div className="classification-result-page">
       <h2>Результат классификации</h2>
       <ul className="result-list">
-        <li><strong>Категория:</strong> {result.class}</li>
-        <li><strong>Уверенность:</strong> {parseFloat(result.confidence).toFixed(2)}%</li>
+        <li><strong>Категория:</strong> {result.class_name}</li>
+        <li><strong>Уверенность:</strong> {parseFloat(result.confidence).toFixed(2) * 100}%</li>
       </ul>
       <button 
         onClick={() => navigate('/classify')} 
