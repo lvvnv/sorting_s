@@ -13,11 +13,11 @@ const getCSRFToken = () => {
   return document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
 };
 
-// API для обработки изображения
-export const processImage = async (formData) => {
-  return api.post('process/', formData, {
+// API для детекции
+export const detectObjects = async (formData) => {
+  console.log("Calling detectObjects service");
+  return api.post('detect/', formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
       'X-CSRFToken': getCSRFToken()
     }
   });

@@ -16,18 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from classification.views import classify_image
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('', include('core.urls')),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('api/', include('core.urls')),
-    path('api/classification/', include('classification.urls')),
-    path('api/detection/', include('detection.urls')),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]#+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Для разработки - раздача медиафайлов
 if settings.DEBUG:

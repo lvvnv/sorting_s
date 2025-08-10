@@ -6,5 +6,5 @@ app_name = 'classification'
 
 urlpatterns = [
     # Пока оставьте пустым или добавьте временный путь
-    path('', views.classify_image, name='classify'),
+    #path('', views.classify_image, name='classify'),
 ]

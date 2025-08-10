@@ -8,8 +8,8 @@ import ClassificationUploadPage from './pages/ClassificationUploadPage';
 import ClassificationResultPage from './pages/ClassificationResultPage';
 import ErrorPage from './pages/ErrorPage';
 import NoDetectionsPage from './pages/NoDetectionsPage';
-import UploadPage from './pages/UploadPage';
-import ResultsPage from './pages/ResultsPage';
+import DetectionUploadPage from './pages/DetectionUploadPage';
+import DetectionResultPage from './pages/DetectionResultPage';
 
 // const App = () => {
 //   return (
@@ -41,6 +41,8 @@ const router = createBrowserRouter([
       { path: "about", element: <AboutPage /> },
       { path: "classify", element: <ClassificationUploadPage /> },
       { path: "classify/result", element: <ClassificationResultPage /> },
+      { path: "detect", element: <DetectionUploadPage />},
+      { path: "detect/results", element: <DetectionResultPage />},
       { path: "error", element: <ErrorPage /> },
       { path: "no-detections", element: <NoDetectionsPage /> }
     ]

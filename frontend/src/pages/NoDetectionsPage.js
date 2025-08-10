@@ -12,7 +12,7 @@ const NoDetectionsPage = () => {
         <p className="mb-0">Попробуйте загрузить другое изображение с более четкими объектами.</p>
       </div>
       <div className="text-center mt-4">
-        <Link to="/classify" className="btn btn-primary">
+        <Link to="/detect" className="btn btn-primary">
           Загрузить другое изображение
         </Link>
       </div>

@@ -23,5 +23,9 @@ export default {
       'Content-Type': 'multipart/form-data'
     }
   }),
-  // Другие API-методы
+  detectImage: (formData) => api.post('detect/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }),
 };
