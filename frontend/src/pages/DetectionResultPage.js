@@ -57,7 +57,7 @@ const DetectionResultPage = () => {
             <div className="card-body">
               <div className="row">
                 <div className="col-6">
-                  <strong>Класс:</strong> {detection.class}<br />
+                  <strong>Класс:</strong> {detection.class_name}<br />
                   <strong>Уверенность:</strong>
                   <span className={`badge ${getConfidenceClass(detection.confidence)}`}>
                     {(detection.confidence * 100).toFixed(2)}%
@@ -89,7 +89,7 @@ const DetectionResultPage = () => {
             <tbody>
               {detections.map((detection, index) => (
                 <tr key={index}>
-                  <td>{detection.class}</td>
+                  <td>{detection.class_name}</td>
                   <td>
                     <span className={`badge ${getConfidenceClass(detection.confidence)}`}>
                       {(detection.confidence * 100).toFixed(2)}%

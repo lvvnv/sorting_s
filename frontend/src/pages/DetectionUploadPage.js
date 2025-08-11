@@ -46,7 +46,8 @@ const DetectionUploadPage = () => {
         throw new Error(`HTTP error! status: ${response.status}, body: ${errorData}`);
         }
 
-      const data = await detectObjects(formData);
+      //const data = await detectObjects(formData);
+      const data = await response.json();
       
       // Перенаправляем на страницу результатов с данными
       navigate('/detect/results', { 

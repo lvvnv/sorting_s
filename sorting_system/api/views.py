@@ -50,7 +50,6 @@ class ClassifyAPIView(APIView):
                 "class_name": class_name,
                 "confidence": confidence
             }
-            print(data)
             # Валидируем данные через сериализатор
             serializer = ClassificationSerializer(data=data)
             serializer.is_valid(raise_exception=True)
@@ -106,10 +105,24 @@ class DetectObjectsView(APIView):
             
             # Если объекты не обнаружены
             if not detections:
-                return Response(
-                    {"error": "На изображении не обнаружено объектов"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                response_data = {
+                    "detections": [
+                        {
+                            "class_name": "Нет",
+                            "confidence": "0",
+                            "box": [0, 0, 0, 0]
+                        }
+                    ],
+                    "processed_image_base64": "0"
+                }
+                serializer = DetectionResponseSerializer(data=response_data)
+                serializer.is_valid(raise_exception=True)
+                
+                return Response(serializer.data, status=status.HTTP_200_OK)
+                # return Response(
+                #     {"error": "На изображении не обнаружено объектов"},
+                #     status=status.HTTP_400_BAD_REQUEST
+                # )
             
             # Рисуем результаты на изображении
             processed_image = detector.draw_detections(image.copy(), detections)
@@ -122,7 +135,7 @@ class DetectObjectsView(APIView):
             response_data = {
                 "detections": [
                     {
-                        "class_name": detection['class'],
+                        "class_name": detection['class_name'],
                         "confidence": detection['confidence'],
                         "box": detection['box']
                     }
