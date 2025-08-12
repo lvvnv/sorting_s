@@ -6,6 +6,9 @@ from django.apps import apps
 import cv2
 import numpy as np
 import base64
+from core.models import UploadedImage
+from django.core.files.base import ContentFile
+import uuid
 
 class ClassifyAPIView(APIView):
     def post(self, request):
@@ -17,7 +20,7 @@ class ClassifyAPIView(APIView):
             )
         
         # Получаем загруженное изображение
-        image = request.FILES['image']
+        image_file = request.FILES['image']
         
         try:
             classification_app = apps.get_app_config('classification')
@@ -31,9 +34,6 @@ class ClassifyAPIView(APIView):
                 )
             
             # Читаем изображение
-            image_file = request.FILES['image']
-            
-            # Конвертируем файл в numpy array для классификатора
             image_bytes = np.frombuffer(image_file.read(), np.uint8)
             image = cv2.imdecode(image_bytes, cv2.IMREAD_COLOR)
             
@@ -45,6 +45,33 @@ class ClassifyAPIView(APIView):
             
             # Выполняем классификацию
             class_name, confidence = classifier.predict(image)
+
+            # Сохраняем изображение в базу данных
+            unique_filename = f"{uuid.uuid4()}_{image_file.name}"
+            uploaded_image = UploadedImage()
+            uploaded_image.image.save(unique_filename, image_file, save=True)
+            
+            # Создаем фиктивный результат детекции для связи с классификацией
+            # Это необходимо, так как ClassificationResult ссылается на DetectionResult
+            from detection.models import DetectionResult
+            detection_result = DetectionResult(
+                image=uploaded_image,
+                x_min=0,
+                y_min=0,
+                x_max=image.shape[1],  # ширина изображения
+                y_max=image.shape[0],  # высота изображения
+                confidence=1.0  # максимальная уверенность для всего изображения
+            )
+            detection_result.save()
+            
+            # Сохраняем результат классификации в базу данных
+            from classification.models import ClassificationResult
+            classification_result = ClassificationResult(
+                detection=detection_result,
+                material=class_name,
+                confidence=confidence
+            )
+            classification_result.save()
 
             data = {
                 "class_name": class_name,
@@ -103,6 +130,11 @@ class DetectObjectsView(APIView):
             # Выполняем детекцию
             detections = detector.predict(image)
             
+            # Сохраняем изображение в базу данных
+            unique_filename = f"{uuid.uuid4()}_{image_file.name}"
+            uploaded_image = UploadedImage()
+            uploaded_image.image.save(unique_filename, image_file, save=True)
+            
             # Если объекты не обнаружены
             if not detections:
                 response_data = {
@@ -127,8 +159,27 @@ class DetectObjectsView(APIView):
             # Рисуем результаты на изображении
             processed_image = detector.draw_detections(image.copy(), detections)
             
-            # Сохраняем обработанное изображение во временный файл
+            # Сохраняем обработанное изображение в базу данных
             _, buffer = cv2.imencode('.jpg', cv2.cvtColor(processed_image, cv2.COLOR_RGB2BGR))
+            processed_image_file = ContentFile(buffer.tobytes())
+            processed_filename = f"processed_{unique_filename}"
+            uploaded_image.processed_image.save(processed_filename, processed_image_file, save=True)
+            
+            # Сохраняем результаты детекции в базу данных
+            from detection.models import DetectionResult
+            detection_results = []
+            for detection in detections:
+                detection_result = DetectionResult(
+                    image=uploaded_image,
+                    x_min=detection['box'][0],
+                    y_min=detection['box'][1],
+                    x_max=detection['box'][2],
+                    y_max=detection['box'][3],
+                    confidence=detection['confidence']
+                )
+                detection_result.save()
+                detection_results.append(detection_result)
+            
             processed_image_base64 = base64.b64encode(buffer).decode('utf-8')
             
             # Формируем данные для ответа
