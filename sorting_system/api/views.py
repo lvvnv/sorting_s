@@ -9,6 +9,7 @@ import base64
 from core.models import UploadedImage
 from django.core.files.base import ContentFile
 import uuid
+from django.shortcuts import get_object_or_404
 
 class ClassifyAPIView(APIView):
     def post(self, request):
@@ -67,7 +68,7 @@ class ClassifyAPIView(APIView):
             # Сохраняем результат классификации в базу данных
             from classification.models import ClassificationResult
             classification_result = ClassificationResult(
-                detection=detection_result,
+                image=uploaded_image,
                 material=class_name,
                 confidence=confidence
             )
@@ -75,7 +76,8 @@ class ClassifyAPIView(APIView):
 
             data = {
                 "class_name": class_name,
-                "confidence": confidence
+                "confidence": confidence,
+                "image_id": uploaded_image.id  # Добавляем ID изображения для возможности удаления
             }
             # Валидируем данные через сериализатор
             serializer = ClassificationSerializer(data=data)
@@ -91,6 +93,35 @@ class ClassifyAPIView(APIView):
             
             return Response(
                 {"error": "Ошибка при обработке изображения (exception)"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def delete(self, request, image_id):
+        """Удаление загруженного изображения и всех связанных результатов"""
+        try:
+            # Получаем изображение или возвращаем 404
+            uploaded_image = get_object_or_404(UploadedImage, id=image_id)
+            
+            # Удаляем файлы с диска
+            if uploaded_image.image:
+                uploaded_image.image.delete(save=False)
+            if uploaded_image.processed_image:
+                uploaded_image.processed_image.delete(save=False)
+            
+            # Удаляем запись из базы данных (каскадное удаление удалит связанные результаты)
+            uploaded_image.delete()
+            
+            return Response(
+                {"message": "Изображение и все связанные результаты успешно удалены"},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Ошибка при удалении изображения: {str(e)}")
+            
+            return Response(
+                {"error": "Ошибка при удалении изображения"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         
@@ -192,7 +223,8 @@ class DetectObjectsView(APIView):
                     }
                     for detection in detections
                 ],
-                "processed_image_base64": f"data:image/jpeg;base64,{processed_image_base64}"
+                "processed_image_base64": f"data:image/jpeg;base64,{processed_image_base64}",
+                "image_id": uploaded_image.id  # Добавляем ID изображения для возможности удаления
             }
             
             # Валидируем данные через сериализатор
@@ -208,5 +240,34 @@ class DetectObjectsView(APIView):
             
             return Response(
                 {"error": "Ошибка при обнаружении объектов"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def delete(self, request, image_id):
+        """Удаление загруженного изображения и всех связанных результатов"""
+        try:
+            # Получаем изображение или возвращаем 404
+            uploaded_image = get_object_or_404(UploadedImage, id=image_id)
+            
+            # Удаляем файлы с диска
+            if uploaded_image.image:
+                uploaded_image.image.delete(save=False)
+            if uploaded_image.processed_image:
+                uploaded_image.processed_image.delete(save=False)
+            
+            # Удаляем запись из базы данных (каскадное удаление удалит связанные результаты)
+            uploaded_image.delete()
+            
+            return Response(
+                {"message": "Изображение и все связанные результаты успешно удалены"},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Ошибка при удалении изображения: {str(e)}")
+            
+            return Response(
+                {"error": "Ошибка при удалении изображения"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

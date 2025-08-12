@@ -1,8 +1,8 @@
 from django.db import models
-from detection.models import DetectionResult
+from core.models import UploadedImage
 
 class ClassificationResult(models.Model):
-    detection = models.OneToOneField(DetectionResult, on_delete=models.CASCADE)
+    image = models.ForeignKey(UploadedImage, on_delete=models.CASCADE)
     material = models.CharField(max_length=50)  # e.g., plastic, glass
     confidence = models.FloatField()
     classified_at = models.DateTimeField(auto_now_add=True)
