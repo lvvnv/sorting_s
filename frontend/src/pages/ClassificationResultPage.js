@@ -1,7 +1,6 @@
 // frontend/src/pages/ClassificationResultPage.js
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import api from '../services/api';
 
 const ClassificationResultPage = () => {
   const navigate = useNavigate();
@@ -63,7 +62,6 @@ const ClassificationResultPage = () => {
         throw new Error('ID изображения не найден в ответе API');
       }
 
-      //const response = await api.updateClassification(imageId, !isWrong);
       const formData = new FormData();
       formData.append('is_wrong', 'True');
 

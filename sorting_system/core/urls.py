@@ -1,5 +1,5 @@
-from django.urls import path
-from . import views
+# from django.urls import path
+# from . import views
 
 urlpatterns = [
     # Пока оставьте пустым или добавьте временный путь

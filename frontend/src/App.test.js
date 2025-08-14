@@ -1,8 +1,15 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+// Mock the RouterProvider since it requires a router object
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  RouterProvider: ({ router }) => <div data-testid="router-provider">App Router</div>
+}));
+
+test('renders app with router provider', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const routerElement = screen.getByTestId('router-provider');
+  expect(routerElement).toBeInTheDocument();
 });

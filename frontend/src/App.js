@@ -11,25 +11,6 @@ import NoDetectionsPage from './pages/NoDetectionsPage';
 import DetectionUploadPage from './pages/DetectionUploadPage';
 import DetectionResultPage from './pages/DetectionResultPage';
 
-// const App = () => {
-//   return (
-//     <Router>
-//       <Routes>
-//         <Route path="/" element={<Layout />}>
-//           <Route index element={<HomePage />} />
-//           <Route path="about" element={<AboutPage />} />
-//           <Route path="classify" element={<ClassificationUploadPage />} />
-//           <Route path="classify/result" element={<ClassificationResultPage />} />
-//           <Route path="error" element={<ErrorPage />} />
-//           <Route path="no-detections" element={<NoDetectionsPage />} />
-//         </Route>
-//       </Routes>
-//     </Router>
-//   );
-// };
-
-// export default App;
-
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 const router = createBrowserRouter([
