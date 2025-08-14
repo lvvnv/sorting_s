@@ -67,7 +67,8 @@ class ClassifyAPIView(APIView):
             data = {
                 "class_name": class_name,
                 "confidence": confidence,
-                "image_id": uploaded_image.id  # Добавляем ID изображения для возможности удаления
+                "image_id": uploaded_image.id,  # Добавляем ID изображения для возможности удаления
+                "is_wrong": classification_result.is_wrong  # Добавляем флаг is_wrong
             }
             # Валидируем данные через сериализатор
             serializer = ClassificationSerializer(data=data)
@@ -82,6 +83,61 @@ class ClassifyAPIView(APIView):
             
             return Response(
                 {"error": "Ошибка при обработке изображения (exception)"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def put(self, request, image_id):
+        """Обновление классификации (пометка как неправильная)"""
+        try:
+            # Получаем результат классификации по image_id
+            try:
+                uploaded_image = UploadedImage.objects.get(id=image_id)
+                classification_result = ClassificationResult.objects.get(image=uploaded_image)
+            except UploadedImage.DoesNotExist:
+                return Response(
+                    {"error": "Изображение не найдено"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            except ClassificationResult.DoesNotExist:
+                return Response(
+                    {"error": "Результат классификации не найден"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Получаем данные из запроса
+            is_wrong = request.data.get('is_wrong', None)
+            
+            if is_wrong is None:
+                return Response(
+                    {"error": "Поле 'is_wrong' обязательно для обновления"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Обновляем флаг is_wrong
+            classification_result.is_wrong = is_wrong
+            classification_result.save()
+            
+            # Подготавливаем данные для ответа
+            data = {
+                "class_name": classification_result.material,
+                "confidence": classification_result.confidence,
+                "image_id": classification_result.image.id,
+                "is_wrong": classification_result.is_wrong
+            }
+            
+            # Валидируем данные через сериализатор
+            serializer = ClassificationSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            # Логируем ошибку для отладки
+            logger = logging.getLogger(__name__)
+            logger.error(f"Ошибка при обновлении классификации: {str(e)}")
+            
+            return Response(
+                {"error": "Ошибка при обновлении классификации"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     

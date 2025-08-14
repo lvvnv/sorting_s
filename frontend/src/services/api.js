@@ -23,6 +23,7 @@ export default {
       'Content-Type': 'multipart/form-data'
     }
   }),
+  updateClassification: (imageId, isWrong) => api.put(`classify/${imageId}/`, { is_wrong: isWrong }),
   deleteClassification: (imageId) => api.delete(`classify/${imageId}/`),
   detectImage: (formData) => api.post('detect/', formData, {
     headers: {

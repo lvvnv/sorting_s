@@ -1,12 +1,15 @@
 // frontend/src/pages/ClassificationResultPage.js
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../services/api';
 
 const ClassificationResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { result, image } = location.state || {};
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isWrong, setIsWrong] = useState(result?.is_wrong || false);
   
   // Если данных нет, перенаправляем на страницу загрузки
   if (!result || !image) {
@@ -21,7 +24,7 @@ const ClassificationResultPage = () => {
     return 'bg-danger';
   };
 
-  // Функция удаления классификации
+    // Функция удаления классификации
   const handleDelete = async () => {
       try {
         setIsDeleting(true);
@@ -48,6 +51,43 @@ const ClassificationResultPage = () => {
       } finally {
         setIsDeleting(false);
       }
+  };
+
+  // Функция пометки классификации как неправильной
+  const handleMarkAsWrong = async () => {
+    try {
+      setIsUpdating(true);
+      // Используем image_id из результата API
+      const imageId = result.image_id;
+      if (!imageId) {
+        throw new Error('ID изображения не найден в ответе API');
+      }
+
+      //const response = await api.updateClassification(imageId, !isWrong);
+      const formData = new FormData();
+      formData.append('is_wrong', 'True');
+
+      const response = await fetch(`http://localhost:8000/api/classify/${imageId}/`, {
+        method: 'PUT',
+        body: formData,
+        credentials: 'include'
+        });
+        
+        if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorData}`);
+        }
+
+      // Обновляем локальное состояние
+      setIsWrong(!isWrong);
+      
+      alert(`Классификация помечена как ${!isWrong ? 'неправильная' : 'правильная'}`);
+    } catch (error) {
+      console.error('Ошибка при обновлении:', error);
+      alert('Ошибка при обновлении классификации: ' + error.message);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -173,6 +213,14 @@ const ClassificationResultPage = () => {
           className="btn btn-primary"
         >
           <i className="bi bi-arrow-repeat me-2"></i>Загрузить другое изображение
+        </button>
+        <button 
+          onClick={handleMarkAsWrong}
+          disabled={isUpdating}
+          className={`btn ${isWrong ? 'btn-success' : 'btn-warning'}`}
+        >
+          <i className={`bi ${isWrong ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-2`}></i>
+          {isUpdating ? 'Обновление...' : (isWrong ? 'Помечено как неправильное' : 'Пометить как неправильное')}
         </button>
         <button 
           onClick={handleDelete}

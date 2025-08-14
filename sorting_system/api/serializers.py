@@ -4,9 +4,10 @@ class ClassificationSerializer(serializers.Serializer):
     class_name = serializers.CharField(source='class')
     confidence = serializers.FloatField()
     image_id = serializers.IntegerField(required=False)
+    is_wrong = serializers.BooleanField(default=False)
 
     class Meta:
-        fields = ['class_name', 'confidence', 'image_id']
+        fields = ['class_name', 'confidence', 'image_id', 'is_wrong']
 
 
 class DetectionSerializer(serializers.Serializer):
