@@ -1,7 +1,6 @@
 // frontend/src/pages/ClassificationUploadPage.js
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { classifyImage } from '../services/classificationService';
 
 const ClassificationUploadPage = () => {
   const [file, setFile] = useState(null);
@@ -145,38 +144,6 @@ const ClassificationUploadPage = () => {
       setLoading(false);
     }
   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-    
-//     if (!file) {
-//       setError('Пожалуйста, выберите изображение');
-//       return;
-//     }
-    
-//     setLoading(true);
-//     setError('');
-    
-//     try {
-//       const formData = new FormData();
-//       formData.append('image', file);
-      
-//       const response = await classifyImage(formData);
-      
-//       // Перенаправляем на страницу результатов с данными
-//       navigate('/classify/result', { 
-//         state: { 
-//           result: response.data,
-//           image: URL.createObjectURL(file)
-//         } 
-//       });
-//     } catch (err) {
-//       setError('Ошибка при обработке изображения. Попробуйте еще раз.');
-//       console.error('Classification error:', err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
 
   return (
     <div className="classification-upload-page">

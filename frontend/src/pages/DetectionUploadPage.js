@@ -1,7 +1,6 @@
 // frontend/src/pages/DetectionUploadPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { detectObjects } from '../services/detectionService';
 
 const DetectionUploadPage = () => {
   const [file, setFile] = useState(null);
@@ -46,7 +45,6 @@ const DetectionUploadPage = () => {
         throw new Error(`HTTP error! status: ${response.status}, body: ${errorData}`);
         }
 
-      //const data = await detectObjects(formData);
       const data = await response.json();
       
       // Перенаправляем на страницу результатов с данными

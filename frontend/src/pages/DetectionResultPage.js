@@ -1,10 +1,11 @@
 // frontend/src/pages/DetectionResultPage.js
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const DetectionResultPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Получаем данные из состояния навигации
   const { image, result } = location.state || {};
@@ -22,6 +23,35 @@ const DetectionResultPage = () => {
     if (confidence > 0.7) return 'bg-success';
     if (confidence > 0.4) return 'bg-warning text-dark';
     return 'bg-danger';
+  };
+
+  // Функция удаления детекции
+  const handleDelete = async () => {
+      try {
+        setIsDeleting(true);
+        // Используем image_id из результата API
+        const imageId = result.image_id;
+        if (!imageId) {
+          throw new Error('ID изображения не найден в ответе API');
+        }
+
+        const response = await fetch(`http://localhost:8000/api/detect/${imageId}/`, {
+        method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorData}`);
+        }
+
+        alert('Результаты детекции успешно удалены');
+        navigate('/detect');
+      } catch (error) {
+        console.error('Ошибка при удалении:', error);
+        alert('Ошибка при удалении результатов детекции: ' + error.message);
+      } finally {
+        setIsDeleting(false);
+      }
   };
 
   return (
@@ -111,9 +141,17 @@ const DetectionResultPage = () => {
       <div className="mt-4 text-center">
         <button 
           onClick={() => navigate('/detect')} 
-          className="btn btn-primary btn-lg"
+          className="btn btn-primary btn-lg me-2"
         >
           <i className="bi bi-arrow-repeat"></i> Загрузить новое изображение
+        </button>
+        <button 
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="btn btn-danger btn-lg"
+        >
+          <i className="bi bi-trash me-2"></i>
+          {isDeleting ? 'Удаление...' : 'Удалить результаты'}
         </button>
       </div>
     </div>

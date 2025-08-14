@@ -6,7 +6,10 @@ from django.apps import apps
 import cv2
 import numpy as np
 import base64
+import logging
 from core.models import UploadedImage
+from classification.models import ClassificationResult
+from detection.models import DetectionResult
 from django.core.files.base import ContentFile
 import uuid
 from django.shortcuts import get_object_or_404
@@ -52,21 +55,8 @@ class ClassifyAPIView(APIView):
             uploaded_image = UploadedImage()
             uploaded_image.image.save(unique_filename, image_file, save=True)
             
-            # Создаем фиктивный результат детекции для связи с классификацией
-            # Это необходимо, так как ClassificationResult ссылается на DetectionResult
-            from detection.models import DetectionResult
-            detection_result = DetectionResult(
-                image=uploaded_image,
-                x_min=0,
-                y_min=0,
-                x_max=image.shape[1],  # ширина изображения
-                y_max=image.shape[0],  # высота изображения
-                confidence=1.0  # максимальная уверенность для всего изображения
-            )
-            detection_result.save()
-            
             # Сохраняем результат классификации в базу данных
-            from classification.models import ClassificationResult
+            
             classification_result = ClassificationResult(
                 image=uploaded_image,
                 material=class_name,
@@ -87,7 +77,6 @@ class ClassifyAPIView(APIView):
             
         except Exception as e:
             # Логируем ошибку для отладки
-            import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Ошибка при классификации изображения: {str(e)}")
             
@@ -116,7 +105,6 @@ class ClassifyAPIView(APIView):
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Ошибка при удалении изображения: {str(e)}")
             
@@ -176,7 +164,8 @@ class DetectObjectsView(APIView):
                             "box": [0, 0, 0, 0]
                         }
                     ],
-                    "processed_image_base64": "0"
+                    "processed_image_base64": "0",
+                    "image_id": uploaded_image.id
                 }
                 serializer = DetectionResponseSerializer(data=response_data)
                 serializer.is_valid(raise_exception=True)
@@ -197,7 +186,6 @@ class DetectObjectsView(APIView):
             uploaded_image.processed_image.save(processed_filename, processed_image_file, save=True)
             
             # Сохраняем результаты детекции в базу данных
-            from detection.models import DetectionResult
             detection_results = []
             for detection in detections:
                 detection_result = DetectionResult(

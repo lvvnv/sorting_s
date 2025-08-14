@@ -1,11 +1,12 @@
 // frontend/src/pages/ClassificationResultPage.js
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const ClassificationResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { result, image } = location.state || {};
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Если данных нет, перенаправляем на страницу загрузки
   if (!result || !image) {
@@ -18,6 +19,35 @@ const ClassificationResultPage = () => {
     if (confidence > 0.7) return 'bg-success';
     if (confidence > 0.4) return 'bg-warning text-dark';
     return 'bg-danger';
+  };
+
+  // Функция удаления классификации
+  const handleDelete = async () => {
+      try {
+        setIsDeleting(true);
+        // Используем image_id из результата API
+        const imageId = result.image_id;
+        if (!imageId) {
+          throw new Error('ID изображения не найден в ответе API');
+        }
+
+        const response = await fetch(`http://localhost:8000/api/classify/${imageId}/`, {
+        method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorData}`);
+        }
+
+        alert('Результаты классификации успешно удалены');
+        navigate('/classify');
+      } catch (error) {
+        console.error('Ошибка при удалении:', error);
+        alert('Ошибка при удалении результатов классификации: ' + error.message);
+      } finally {
+        setIsDeleting(false);
+      }
   };
 
   return (
@@ -143,6 +173,14 @@ const ClassificationResultPage = () => {
           className="btn btn-primary"
         >
           <i className="bi bi-arrow-repeat me-2"></i>Загрузить другое изображение
+        </button>
+        <button 
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="btn btn-danger"
+        >
+          <i className="bi bi-trash me-2"></i>
+          {isDeleting ? 'Удаление...' : 'Удалить результаты'}
         </button>
       </div>
     </div>

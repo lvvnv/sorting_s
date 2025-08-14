@@ -23,9 +23,11 @@ export default {
       'Content-Type': 'multipart/form-data'
     }
   }),
+  deleteClassification: (imageId) => api.delete(`classify/${imageId}/`),
   detectImage: (formData) => api.post('detect/', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   }),
+  deleteDetection: (imageId) => api.delete(`detect/${imageId}/`),
 };
