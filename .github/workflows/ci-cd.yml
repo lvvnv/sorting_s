@@ -16,6 +16,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        lfs: true
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
@@ -49,6 +51,22 @@ jobs:
         echo "SECRET_KEY=django-insecure-test-key-for-ci" > .env
         echo "DEBUG=True" >> .env
 
+    - name: Verify LFS files
+      working-directory: ./sorting_system
+      run: |
+        # Check if model files are properly downloaded (not pointer files)
+        find . -name "*.pth" -o -name "*.pt" -o -name "*.h5" -o -name "*.onnx" -o -name "*.weights" | while read file; do
+          if [ -f "$file" ]; then
+            size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null)
+            echo "File: $file (Size: $size bytes)"
+            if [ $size -lt 200 ]; then
+              echo "WARNING: $file appears to be a pointer file (too small)"
+              head -c 100 "$file"
+              echo ""
+            fi
+          fi
+        done
+
     - name: Check Django configuration
       working-directory: ./sorting_system
       run: |
@@ -74,6 +92,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        lfs: true
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
@@ -100,6 +120,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        lfs: true
 
     - name: Setup Node.js for frontend build
       uses: actions/setup-node@v3
