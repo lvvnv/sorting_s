@@ -104,7 +104,7 @@ const ClassificationResultPage = () => {
             <img 
               src={image} 
               className="img-fluid rounded shadow-sm" 
-              alt="Загруженное изображение" 
+              alt="Загруженное" 
               style={{ 
                 maxWidth: '100%',
                 height: 'auto',

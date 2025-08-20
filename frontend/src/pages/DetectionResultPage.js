@@ -64,7 +64,7 @@ const DetectionResultPage = () => {
           <img 
             src={image} 
             className="img-fluid rounded shadow" 
-            alt="Uploaded Image" 
+            alt="Uploaded" 
           />
         </div>
         {processedImageUrl && (
@@ -73,7 +73,7 @@ const DetectionResultPage = () => {
             <img 
               src={processedImageUrl} 
               className="img-fluid rounded shadow" 
-              alt="Processed Image" 
+              alt="Processed" 
             />
           </div>
         )}
