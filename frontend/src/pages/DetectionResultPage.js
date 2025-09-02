@@ -35,7 +35,7 @@ const DetectionResultPage = () => {
           throw new Error('ID изображения не найден в ответе API');
         }
 
-        const response = await fetch(`http://localhost:8000/api/detect/${imageId}/`, {
+        const response = await fetch(`/api/detect/${imageId}/`, {
         method: 'DELETE'
         });
         

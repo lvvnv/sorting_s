@@ -33,7 +33,7 @@ const ClassificationResultPage = () => {
           throw new Error('ID изображения не найден в ответе API');
         }
 
-        const response = await fetch(`http://localhost:8000/api/classify/${imageId}/`, {
+        const response = await fetch(`/api/classify/${imageId}/`, {
         method: 'DELETE'
         });
         
@@ -65,7 +65,7 @@ const ClassificationResultPage = () => {
       const formData = new FormData();
       formData.append('is_wrong', 'True');
 
-      const response = await fetch(`http://localhost:8000/api/classify/${imageId}/`, {
+      const response = await fetch(`/api/classify/${imageId}/`, {
         method: 'PUT',
         body: formData,
         credentials: 'include'

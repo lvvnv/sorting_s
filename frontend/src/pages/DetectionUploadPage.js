@@ -34,7 +34,7 @@ const DetectionUploadPage = () => {
       const formData = new FormData();
       formData.append('image', file);
       
-      const response = await fetch('http://localhost:8000/api/detect/', {
+      const response = await fetch('/api/detect/', {
         method: 'POST',
         body: formData,
         credentials: 'include'

@@ -92,7 +92,7 @@ const ClassificationUploadPage = () => {
         const formData = new FormData();
         formData.append('image', file);
         
-        const response = await fetch('http://localhost:8000/api/classify/', {
+        const response = await fetch('/api/classify/', {
         method: 'POST',
         body: formData,
         credentials: 'include'

@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-s+i-vvute79adxvb8dm7cw-5-ij9dijm!nv)d$&xh1d*0^!fxa'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -50,9 +50,6 @@ INSTALLED_APPS = [
     # 'detection.apps.DetectionConfig',
 ]
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # Уберите SessionAuthentication если не используете аутентификацию
@@ -73,13 +70,32 @@ MIDDLEWARE = [
     # 'monitoring.middleware.PrometheusMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL =True
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',   
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS'
 ]
 
-CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_SECURE = False  # Для разработки
-CSRF_COOKIE_SAMESITE = 'Lax'
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    "access-control-allow-origin",
+]
 
 ROOT_URLCONF = 'sorting_system.urls'
 
