@@ -2,9 +2,14 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from '../App';
 
-test('renders app without crashing', () => {
+// Mock the RouterProvider since it requires a router object
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  RouterProvider: ({ router }) => <div data-testid="router-provider">App Router</div>
+}));
+
+test('renders app with router provider', () => {
   render(<App />);
-  // The App component uses React Router, so we can't easily test specific content
-  // But we can at least verify it renders without errors
-  expect(true).toBe(true);
+  const routerElement = screen.getByTestId('router-provider');
+  expect(routerElement).toBeInTheDocument();
 });
