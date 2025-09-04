@@ -41,13 +41,9 @@ INSTALLED_APPS = [
     'core',
     'classification',
     'detection',
-    'monitoring',
     'api',
-    'users',
     'corsheaders',
     'rest_framework',
-    # 'classification.apps.ClassificationConfig',
-    # 'detection.apps.DetectionConfig',
 ]
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
@@ -70,7 +66,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'monitoring.middleware.PrometheusMiddleware',
 ]
 
 CORS_ALLOWED_ORIGINS = [

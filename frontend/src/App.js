@@ -5,8 +5,6 @@ import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import ClassificationUploadPage from './pages/ClassificationUploadPage';
 import ClassificationResultPage from './pages/ClassificationResultPage';
-import ErrorPage from './pages/ErrorPage';
-import NoDetectionsPage from './pages/NoDetectionsPage';
 import DetectionUploadPage from './pages/DetectionUploadPage';
 import DetectionResultPage from './pages/DetectionResultPage';
 
@@ -22,9 +20,7 @@ const router = createBrowserRouter([
       { path: "classify", element: <ClassificationUploadPage /> },
       { path: "classify/result", element: <ClassificationResultPage /> },
       { path: "detect", element: <DetectionUploadPage />},
-      { path: "detect/results", element: <DetectionResultPage />},
-      { path: "error", element: <ErrorPage /> },
-      { path: "no-detections", element: <NoDetectionsPage /> }
+      { path: "detect/results", element: <DetectionResultPage />}
     ]
   }
 ], {
