@@ -48,7 +48,7 @@ jobs:
         # Create media directory if it doesn't exist
         mkdir -p media/uploads media/debug
         # Create .env file with required environment variables
-        echo SECRET_KEY=${{ secrets.SECRET_KEY }} > .env
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
         echo DEBUG=True >> .env
 
     - name: Verify LFS files
