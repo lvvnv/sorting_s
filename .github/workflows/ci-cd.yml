@@ -48,8 +48,8 @@ jobs:
         # Create media directory if it doesn't exist
         mkdir -p media/uploads media/debug
         # Create .env file with required environment variables
-        echo "SECRET_KEY=django-insecure-test-key-for-ci" > .env
-        echo "DEBUG=True" >> .env
+        echo SECRET_KEY=${{ secrets.SECRET_KEY }} > .env
+        echo DEBUG=True >> .env
 
     - name: Verify LFS files
       working-directory: ./sorting_system
@@ -82,7 +82,7 @@ jobs:
       run: |
         python manage.py test
       env:
-        SECRET_KEY: django-insecure-test-key-for-ci
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
         DEBUG: True
 
   frontend-test:
